@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="da">
+  <head>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <meta charset="utf-8" />
+    <title>Hogwarts</title>
+    <style>
+      body {
+        background-color: #fbf7f1;
+      }
+
+      .logo {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        padding-bottom: 2.5%;
+        padding-top: 2.5%;
+      }
+
+      .logo img {
+        width: 300px;
+        grid-column: 2;
+      }
+
+      div.banner {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 0;
+      }
+
+      .banner {
+        margin-left: 10vw;
+        margin-right: 10vw;
+        background-color: #333;
+        overflow: hidden;
+      }
+
+      .banner a {
+        float: left;
+        display: block;
+        color: #f2f2f2;
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none;
+        font-size: 17px;
+      }
+
+      .banner a:hover:first-child {
+        background-color: #fbf7f1;
+        color: black;
+      }
+
+      .banner a:hover:nth-child(2) {
+        background-color: #b00003;
+        color: black;
+      }
+
+      .banner a:hover:nth-child(3) {
+        background-color: #e1b400;
+        color: black;
+      }
+
+      .banner a:hover:nth-child(4) {
+        background-color: #004382;
+        color: black;
+      }
+
+      .banner a:hover:nth-child(5) {
+        background-color: #024f0d;
+        color: black;
+      }
+
+      .banner .icon {
+        display: none;
+      }
+
+      article {
+        padding: 2em;
+        background-color: white;
+      }
+
+      .data-container article img {
+        width: 100%;
+      }
+
+      .data-container {
+        margin: 0 auto;
+        display: grid;
+        grid-gap: 10px;
+        padding: 10%;
+      }
+
+      @media screen and (max-width: 700px) {
+        .banner a:not(:first-child) {
+          display: none;
+        }
+
+        .banner a.icon {
+          float: right;
+          display: block;
+        }
+
+        .banner.responsive {
+          position: relative;
+        }
+
+        .banner.responsive a.icon {
+          position: absolute;
+          right: 0;
+          top: 0;
+        }
+
+        .banner.responsive a {
+          float: none;
+          display: block;
+          text-align: left;
+        }
+      }
+
+      @media screen and (max-width: 435px) {
+        .data-container {
+          grid-template-columns: repeat(1, 1fr);
+        }
+        .logo img {
+          width: 150px;
+          grid-column: 2;
+        }
+      }
+
+      @media screen and (min-width: 600px) {
+        .data-container {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media screen and (min-width: 900px) {
+        .data-container {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      @media screen and (min-width: 1200px) {
+        .logo {
+          padding-left: 5%;
+        }
+
+        .data-container {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+
+      @media screen and (min-width: 1300px) {
+        .logo {
+          padding-left: 5%;
+        }
+      }
+
+      @media screen and (min-width: 1500px) {
+        .logo {
+          padding-left: 10%;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <a href="index.html">
+      <div class="logo"><img src="img/hogwarts.png" alt="logo" /></div>
+    </a>
+
+    <div class="banner" id="myBanner">
+      <a href="index.html">All students</a>
+
+      <a href="#gryffindor" class="house-item" data-house="Gryffindor"
+        >Gryffindor</a
+      >
+      <a href="#hufflepuff" class="house-item" data-house="Hufflepuff"
+        >Hufflepuff</a
+      >
+      <a href="#ravenclaw" class="house-item" data-house="Ravenclaw"
+        >Ravenclaw</a
+      >
+      <a href="#slytherin" class="house-item" data-house="Slytherin"
+        >Slytherin</a
+      >
+
+      <a href="javascript:void(0);" class="icon" onclick="bannerFunction()">
+        <i class="fa fa-bars"></i>
+      </a>
+    </div>
+
+    <main class="container">
+      <section class="data-container"></section>
+    </main>
+    <template class="data-template">
+      <article class="students">
+        <p>Name:</p>
+        <div class="data-name"></div>
+        <br />
+        <p>House:</p>
+        <div class="data-house"></div>
+        <br />
+      </article>
+    </template>
+
+    <script>
+      let dest = document.querySelector(".data-container");
+      let students;
+      let studentsFilter = "all";
+      document.addEventListener("DOMContentLoaded", hentJson);
+
+      function bannerFunction() {
+        var x = document.getElementById("myBanner");
+        if (x.className === "banner") {
+          x.className += " responsive";
+        } else {
+          x.className = "banner";
+        }
+      }
+
+      async function hentJson() {
+        let myJson = await fetch("http://petlatkea.dk/2019/students1991.json");
+        students = await myJson.json();
+        visStudents();
+      }
+
+      document.querySelectorAll(".house-item").forEach(knap => {
+        knap.addEventListener("click", filtrering);
+      });
+
+      function filtrering() {
+        dest.textContent = "";
+        studentsFilter = this.getAttribute("data-house");
+        visStudents();
+      }
+
+      function visStudents() {
+        let dest = document.querySelector(".data-container"),
+          temp = document.querySelector(".data-template");
+        //løb personlisten igennem og lav en klon
+        students.forEach(students => {
+          if (students.house == studentsFilter || studentsFilter == "all") {
+            let klon = temp.cloneNode(true).content;
+            //indsæt data i klonen
+            klon.querySelector(".data-name").textContent = students.fullname;
+            klon.querySelector(".data-house").textContent = students.house;
+            //placer klon i DOM
+            dest.appendChild(klon);
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
